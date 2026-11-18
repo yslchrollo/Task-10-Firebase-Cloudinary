@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "825104550139",
+    "project_id": "fir-crud-rodrigo",
+    "storage_bucket": "fir-crud-rodrigo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825104550139:android:0618a2ee729c6b7d2ac85e",
+        "android_client_info": {
+          "package_name": "com.rodrigo.task10_firebase_crud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "825104550139-nii1vpkbq7mj6qrihh8dt4tv4m5a4q1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTlrW82PHGubLjaHbNhhCsPA9viYkk7m0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "825104550139-nii1vpkbq7mj6qrihh8dt4tv4m5a4q1a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825104550139:android:5a8564852ba1a41b2ac85e",
+        "android_client_info": {
+          "package_name": "com.rodrigo.task8_firebase_crud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "825104550139-k2fvcl9lovpis3tmtsn0ceq0j12cd0iv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rodrigo.task8_firebase_crud",
+            "certificate_hash": "4a1a074178cff3037b0c690497aaf475791fde02"
+          }
+        },
+        {
+          "client_id": "825104550139-nii1vpkbq7mj6qrihh8dt4tv4m5a4q1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTlrW82PHGubLjaHbNhhCsPA9viYkk7m0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "825104550139-nii1vpkbq7mj6qrihh8dt4tv4m5a4q1a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

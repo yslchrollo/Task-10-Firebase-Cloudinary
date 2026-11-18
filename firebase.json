@@ -1,0 +1,28 @@
+{
+  "firestore": [
+    {
+      "database": "default",
+      "rules": "firestore.rules"
+    }
+  ],
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "fir-crud-rodrigo",
+          "appId": "1:825104550139:android:0618a2ee729c6b7d2ac85e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "fir-crud-rodrigo",
+          "configurations": {
+            "android": "1:825104550139:android:0618a2ee729c6b7d2ac85e",
+            "web": "1:825104550139:web:f3abb5937c5f73722ac85e"
+          }
+        }
+      }
+    }
+  }
+}
