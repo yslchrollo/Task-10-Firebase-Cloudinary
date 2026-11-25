@@ -43,6 +43,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "825104550139-0kh7rrbo5qjpqqn5l4v94n369utv339m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rodrigo.task8_firebase_crud",
+            "certificate_hash": "f9a3495d324b6a5316fe3ead6878b282b25bf34d"
+          }
+        },
+        {
           "client_id": "825104550139-k2fvcl9lovpis3tmtsn0ceq0j12cd0iv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

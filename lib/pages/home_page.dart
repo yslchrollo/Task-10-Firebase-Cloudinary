@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:material_ui/material_ui.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/crud_service.dart';
 import '../services/auth_service.dart';
@@ -47,48 +48,149 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ───────────────────────────────────────────────
-  // ADD ITEM DIALOG
+  // ADD ITEM DIALOG (with Cloudinary image upload)
   // ───────────────────────────────────────────────
   void _showAddItemDialog() {
     final nameController = TextEditingController();
     final quantityController = TextEditingController();
+
+    File? selectedImageFile;
+    String? selectedImageUrl;
+    String? selectedFileName;
+    bool selectedIsImage = true;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         bool isSubmitting = false;
+        bool isUploadingImage = false;
 
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Add Item'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    enabled: !isSubmitting,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
+              title: const Text('Add item'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      enabled: !isSubmitting,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: quantityController,
-                    enabled: !isSubmitting,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: quantityController,
+                      enabled: !isSubmitting,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
                     ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    if (selectedImageFile != null)
+                      selectedIsImage
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                selectedImageFile!,
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade400),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.insert_drive_file,
+                                    color: Colors.teal,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      selectedFileName ?? 'Selected file',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      icon: isUploadingImage
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.upload_file),
+                      label: Text(
+                        isUploadingImage ? 'Uploading...' : 'upload image',
+                      ),
+                      onPressed: (isSubmitting || isUploadingImage)
+                          ? null
+                          : () async {
+                              setDialogState(() {
+                                isUploadingImage = true;
+                              });
+                              try {
+                                final pickedFile =
+                                    await _crudService.pickImageForAddItem();
+                                if (pickedFile != null) {
+                                  setDialogState(() {
+                                    selectedImageFile = pickedFile.file;
+                                    selectedImageUrl = pickedFile.url;
+                                    selectedFileName = pickedFile.fileName;
+                                    selectedIsImage = pickedFile.isImage;
+                                  });
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(this.context)
+                                      .showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text('File upload failed: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } finally {
+                                if (dialogContext.mounted) {
+                                  setDialogState(() {
+                                    isUploadingImage = false;
+                                  });
+                                }
+                              }
+                            },
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
-                  onPressed: isSubmitting
+                  onPressed: (isSubmitting || isUploadingImage)
                       ? null
                       : () => Navigator.of(dialogContext).pop(),
                   child: const Text('Cancel'),
@@ -96,8 +198,11 @@ class _HomePageState extends State<HomePage> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  onPressed: isSubmitting
+                  onPressed: (isSubmitting || isUploadingImage)
                       ? null
                       : () async {
                           final name = nameController.text.trim();
@@ -117,11 +222,15 @@ class _HomePageState extends State<HomePage> {
                           });
 
                           try {
-                            await _crudService.addItem(name, quantity);
+                            await _crudService.addItemWithImage(
+                              name,
+                              quantity,
+                              selectedImageUrl,
+                              fileName: selectedFileName,
+                            );
                             nameController.clear();
                             quantityController.clear();
 
-                            // Automatically close the dialog after successful save
                             if (dialogContext.mounted) {
                               Navigator.of(dialogContext).pop();
                             }
@@ -136,7 +245,6 @@ class _HomePageState extends State<HomePage> {
                               );
                             }
                           } catch (e) {
-                            // Keep dialog open on failure and show error
                             setDialogState(() {
                               isSubmitting = false;
                             });
@@ -250,7 +358,6 @@ class _HomePageState extends State<HomePage> {
                           try {
                             await _crudService.updateItem(docId, name, quantity);
 
-                            // Automatically close the dialog after successful edit
                             if (dialogContext.mounted) {
                               Navigator.of(dialogContext).pop();
                             }
@@ -265,7 +372,6 @@ class _HomePageState extends State<HomePage> {
                               );
                             }
                           } catch (e) {
-                            // Keep dialog open on failure and show error
                             setDialogState(() {
                               isSubmitting = false;
                             });
@@ -486,11 +592,13 @@ class _HomePageState extends State<HomePage> {
               final String name = data['name'] ?? '';
               final String quantity = data['quantity']?.toString() ?? '';
               final bool isFavorite = data['isFavorite'] ?? false;
+              final String? imageUrl = data['image_url'] as String?;
 
               return ItemCard(
                 name: name,
                 quantity: quantity,
                 isFavorite: isFavorite,
+                imageUrl: imageUrl,
                 onFavoriteToggle: () async {
                   try {
                     await _crudService.toggleFavorite(doc.id, isFavorite);
